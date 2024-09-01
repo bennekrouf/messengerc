@@ -1,7 +1,7 @@
 
 
 pub mod generated {
-    include!(concat!(env!("OUT_DIR"), "/messenger.rs"));  // Use the correct proto file for MessengerService
+    include!(concat!(env!("OUT_DIR"), "/messenger.rs"));
 }
 use tonic::transport::{Channel, Endpoint};
 use dotenvy::from_path;
@@ -13,6 +13,7 @@ use tokio::sync::Mutex;
 use std::env;
 use std::path::Path;
 use tracing_subscriber;
+use tracing::{info, error};
 
 // Define your connect function
 pub async fn connect_to_messenger_service() -> Option<MessengerServiceClient<Channel>> {
@@ -32,11 +33,11 @@ pub async fn connect_to_messenger_service() -> Option<MessengerServiceClient<Cha
 
     match messenger_service_endpoint.connect().await {
         Ok(channel) => {
-            println!("Connected to MessengerService.");
+            info!("Connected to MessengerService at {}", messenger_service_addr);
             Some(MessengerServiceClient::new(channel))
         },
         Err(e) => {
-            println!("Failed to connect to MessengerService: {:?}", e);
+            error!("Failed to connect to MessengerService: {:?}", e);
             None
         }
     }
