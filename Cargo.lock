@@ -738,7 +738,6 @@ dependencies = [
 [[package]]
 name = "proto-definitions"
 version = "0.1.0"
-source = "git+https://github.com/bennekrouf/proto-definitions?branch=main#db616716e453c3e28d375e8794e5cf48de241803"
 dependencies = [
  "dotenvy",
  "serde",
