@@ -10,6 +10,7 @@ tokio = { version = "1.40.0", features = ["full"] }
 tonic = "0.12.2"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
+proto-definitions = { git = "https://github.com/bennekrouf/proto-definitions", branch = "main" }
 
 [build-dependencies]
 tonic-build = "0.12.1"
