@@ -1,26 +1,24 @@
-
-
-pub mod generated {
-    include!(concat!(env!("OUT_DIR"), "/messenger.rs"));
-}
-use tonic::transport::{Channel, Endpoint};
 use dotenvy::from_path;
-use crate::generated::messenger_service_client::MessengerServiceClient;
-use crate::generated::MessageRequest;
-use tonic::Request;
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use tonic::transport::{Channel, Endpoint};
+
+use proto_definitions::messenger::messenger_service_client::MessengerServiceClient;
+use proto_definitions::messenger::MessageRequest;
+//use proto_definitions::DESCRIPTOR_PATH;
+
 use std::env;
 use std::path::Path;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tonic::Request;
+use tracing::{error, info};
 use tracing_subscriber;
-use tracing::{info, error};
 
 // Define your connect function
 pub async fn connect_to_messenger_service() -> Option<MessengerServiceClient<Channel>> {
     // Initialize tracing or logging
     tracing_subscriber::fmt::init();
     // Load the environment variables from a custom file
-    let custom_env_path = Path::new("proto-definitions/.service");
+    let custom_env_path = Path::new("../proto-definitions/.service");
     from_path(custom_env_path).expect("Failed to load environment variables from custom path");
 
     let messenger_service_addr = env::var("MESSENGER_ADDR").ok()?;
@@ -33,9 +31,12 @@ pub async fn connect_to_messenger_service() -> Option<MessengerServiceClient<Cha
 
     match messenger_service_endpoint.connect().await {
         Ok(channel) => {
-            info!("Connected to MessengerService at {}", messenger_service_addr);
+            info!(
+                "Connected to MessengerService at {}",
+                messenger_service_addr
+            );
             Some(MessengerServiceClient::new(channel))
-        },
+        }
         Err(e) => {
             error!("Failed to connect to MessengerService: {:?}", e);
             None
@@ -54,8 +55,11 @@ impl MessagingService {
         MessagingService { client, tag }
     }
 
-    pub async fn publish_message(&self, message: String, tags: Option<Vec<String>>) 
-    -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn publish_message(
+        &self,
+        message: String,
+        tags: Option<Vec<String>>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let message_request = MessageRequest {
             message_text: message,
             tags: tags.unwrap_or_else(|| vec![self.tag.clone()]),
@@ -70,4 +74,3 @@ impl MessagingService {
         Ok(())
     }
 }
-
